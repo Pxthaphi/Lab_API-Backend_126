@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function showprofile(){
-        return 'Hello Profile Page';
+
+        return"Hello This my project";
     }
 }

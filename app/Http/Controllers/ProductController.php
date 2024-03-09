@@ -7,85 +7,83 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     * @return \Illuminate\Http\Response
-     */
 
     public function index()
     {
-        $result = ['name' => 'index', 'payload' => Product::all()];
+
+        $result = ["name" => 'index', 'payload' => Product::all()];
         return $result;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * 
-     * @param Illuminate\Http\Request
-     * @return \Illuminate\Http\Response
-     * 
-     */
 
     public function store(Request $request)
     {
+
+        $fields = $request->validate(
+            [
+                "pd_name" => "required|string",
+                "pd_type" => "required|integer",
+                "pd_price" => "required|numeric",
+            ]
+        );
+
         Product::create([
-            'product_name' => $request->pd_name,
-            'product_type' => $request->pd_type,
-            'price' => $request->pd_price,
+            "product_name" => $fields["pd_name"],
+            "product_type" => $fields["pd_type"],
+            "price" => $fields["pd_price"],
         ]);
-        $result = ['name' => 'store', 'payload' => $request->all()];
-        return $result;
-    }
 
-    /**
-     * Display the specified resource.
-     * 
-     */
-    public function show($product_id)
+        return "Inserted success";
+    }
+    public function show(string $id)
     {
-        $result = ['name' => 'show', 'payload' => $product_id];
+        $result = ['name' => 'Product', 'payload' => Product::find($id)];
         return $result;
     }
-
     /**
      * Update the specified resource in storage.
-     * 
-     * 
-     * @param Illuminate\Http\Request $request
-     * @param \App\Models\Product $product
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $product_id)
+    public function update(Request $request, $id)
     {
-        $product = Product::find($product_id);
-
-        // Update multiple fields
-        $product->update([
-            'product_name' => $request->pd_name,
-            'product_type' => $request->pd_type,
-            'price' => $request->pd_price,
+        // Validate the request data
+        $request->validate([
+            'pd_name' => 'required|string|max:255',
+            'pd_price' => 'required|numeric|min:0',
         ]);
 
-        if ($product) {
-            return json_encode(["message " => "success"]);
+        // Find the product by ID
+        $product = Product::find($id);
+
+        // Check if the product exists
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+
+        // Update product information
+        $product->product_name = $request->pd_name;
+        $product->price = $request->pd_price;
+
+        // Save changes to the database
+        if ($product->save()) {
+            // Return a success response
+            return response()->json(['message' => 'Update success']);
         } else {
-            return json_encode(["message " => "false"]);
+            // Handle the case where the update fails
+            return response()->json(['error' => 'Update failed'], 500);
         }
     }
-
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($product_id)
+    public function destroy(string $id)
     {
-        $product = Product::find($product_id);
-
-        if ($product) {
-            $product->delete();
-            return json_encode(["delete" => "success"]);
+        $product = Product::find($id);
+        if ($product->delete()) {
+            // Return a success response
+            return response()->json(['message' => 'Delete success']);
         } else {
-            return json_encode(["delete" => "false"]);
+            // Handle the case where the update fails
+            return response()->json(['error' => 'Delete failed'], 500);
         }
     }
 }

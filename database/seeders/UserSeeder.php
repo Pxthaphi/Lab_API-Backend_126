@@ -25,14 +25,6 @@ class UserSeeder extends Seeder
                     "created_at" => Carbon::now(),
                     "updated_at" => Carbon::now(),
                 ],
-                [
-                    "name" => "Pimamorn PIM",
-                    "password" => Hash::make('123456'),
-                    "email" => "Pimamorn.pim@gmail.com",
-                    "telephone" => "0888888888",
-                    "created_at" => Carbon::now(),
-                    "updated_at" => Carbon::now(),
-                ],
             ]
         );
     }
